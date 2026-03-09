@@ -1,39 +1,54 @@
 version: '3.8'
 
 services:
-  database:
-    image: postgis/postgis:13-3.4-alpine
-    environment:
-      POSTGRES_DB: directus
-      POSTGRES_USER: directus
-      POSTGRES_PASSWORD: directus
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U directus"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   directus:
     image: directus/directus:latest
     container_name: testbot-directus
     ports:
       - "8055:8055"
     environment:
-      DB_CLIENT: pg
-      DB_HOST: database
-      DB_PORT: 5432
-      DB_DATABASE: directus
-      DB_USER: directus
-      DB_PASSWORD: directus
-      ADMIN_EMAIL: admin@example.com
-      ADMIN_PASSWORD: testpass123
-      KEY: testbot-key-12345678
-      SECRET: testbot-secret-12345678
+      - KEY=test-secret-key-12345
+      - SECRET=test-secret-67890
+      - DB_CLIENT=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=directus
+      - DB_USER=directus
+      - DB_PASSWORD=directus
+      - ADMIN_EMAIL=admin@test.com
+      - ADMIN_PASSWORD=TestPass123!
+      - WEBSOCKETS_ENABLED=true
+    volumes:
+      - directus_uploads:/directus/uploads
+      - directus_extensions:/directus/extensions
     depends_on:
-      database:
+      postgres:
         condition: service_healthy
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8055/server/health"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 40s
+
+  postgres:
+    image: postgres:15
+    container_name: testbot-directus-postgres
+    environment:
+      - POSTGRES_USER=directus
+      - POSTGRES_PASSWORD=directus
+      - POSTGRES_DB=directus
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  directus_uploads:
+  directus_extensions:
+  postgres_data:

@@ -1,12 +1,14 @@
 #!/bin/bash
-set -e
+# TestBot Auth Token Script for Directus
+# Logs in and outputs JWT access token
 
-# Get authentication token for Directus API
+API_BASE="http://localhost:8055"
+EMAIL="admin@test.com"
+PASSWORD="TestPass123!"
 
-TOKEN=$(curl -s -X POST http://localhost:8055/auth/login \
+TOKEN=$(curl -s -X POST "$API_BASE/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"testpass123"}' \
-  | grep -o '"access_token":"[^"]*"' \
-  | cut -d'"' -f4)
+  -d "{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}" \
+  | jq -r '.data.access_token')
 
-echo "Bearer $TOKEN"
+echo "$TOKEN"
