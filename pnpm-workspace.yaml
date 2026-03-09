@@ -324,8 +324,6 @@ catalog:
   zod: 4.1.12
   zod-validation-error: 4.0.2
 
-catalogMode: strict
-
 onlyBuiltDependencies:
   - '@fortawesome/fontawesome-common-types'
   - '@fortawesome/fontawesome-svg-core'
